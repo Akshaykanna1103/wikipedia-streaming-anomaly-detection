@@ -1,0 +1,8 @@
+Project Title:
+Real-Time Wikipedia Activity Monitoring and Anomaly Detection Using Apache Kafka
+
+Student:
+Akshay Kanna
+
+GitHub Repository:
+https://github.com/Akshaykanna1103/wikipedia-streaming-anomaly-detection

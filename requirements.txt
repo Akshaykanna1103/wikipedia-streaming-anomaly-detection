@@ -1,0 +1,5 @@
+kafka-python
+requests
+sseclient-py
+streamlit
+pandas

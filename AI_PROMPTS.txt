@@ -1,0 +1,53 @@
+AI PROMPTS USED DURING PROJECT DEVELOPMENT
+
+Project: Real-Time Wikipedia Activity Monitoring and Anomaly Detection Using Apache Kafka
+
+1. PROJECT DESIGN
+- Help me design a real-time data streaming project using Apache Kafka.
+- Suggest a genuine real-time data source instead of synthetic or randomly generated data.
+- Design a producer-consumer architecture for monitoring Wikipedia activity.
+
+2. DATA PRODUCER
+- Help me connect to Wikimedia's live Recent Changes EventStream using Python.
+- Implement a Kafka producer that publishes live Wikipedia events in JSON format.
+- Explain producer acknowledgements, retries, and reconnection handling.
+
+3. KAFKA CONFIGURATION
+- Help me configure Apache Kafka using Docker Compose and KRaft mode.
+- Create a Kafka topic with three partitions.
+- Explain Kafka partitions, offsets, consumer groups, and consumer lag.
+
+4. ANALYTICS CONSUMER
+- Implement a Python Kafka consumer to process Wikipedia activity events.
+- Store daily event counts and page edit statistics using SQLite.
+- Distinguish actual edit events from other Wikipedia event types.
+
+5. ANOMALY DETECTION
+- Help me implement statistical anomaly detection using rolling windows.
+- Use historical averages and standard deviation to identify unusual activity spikes.
+- Explain how to calculate anomaly thresholds and generate alerts.
+
+6. DASHBOARD
+- Build a Streamlit dashboard to visualize live Wikipedia activity.
+- Display event throughput, processing latency, anomaly alerts, and most edited pages.
+- Connect the dashboard to SQLite and Kafka.
+
+7. RELIABILITY AND PERFORMANCE
+- Explain Kafka message retention and consumer recovery.
+- Help me test consumer lag when the analytics consumer is stopped and restarted.
+- Explain how to monitor throughput, latency, scalability, and reliability.
+
+8. DUPLICATE EVENT HANDLING
+- Explain how duplicate messages can occur in Kafka producer-consumer pipelines.
+- Implement duplicate-event detection using Wikimedia's unique event ID.
+- Use SQLite primary keys and transactions to prevent duplicate analytics updates.
+- Disable automatic offset commits and commit offsets after successful database processing.
+- Help me test duplicate-event handling using integration tests.
+
+9. DEBUGGING AND DOCUMENTATION
+- Help me debug Python, Kafka, SQLite, and Streamlit errors.
+- Explain implementation steps and terminal commands.
+- Help me prepare project documentation and explain the architecture and objectives.
+
+Note:
+These prompts summarize the main categories of AI assistance used during project development. They are not a verbatim transcript of every prompt.

@@ -90,6 +90,15 @@ CREATE TABLE IF NOT EXISTS processed_events (
     processed_at TEXT
 )
 """)
+connection.execute("""
+CREATE TABLE IF NOT EXISTS anomaly_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    detected_at TEXT,
+    event_count INTEGER,
+    baseline_average REAL,
+    threshold REAL
+)
+""")
 
 connection.commit()
 
@@ -284,7 +293,7 @@ def generate_report():
 
     top_pages = connection.execute("""
     SELECT page, edit_count
-    FROM page_daily_edits
+    FROM wikipedia_article_edits
     WHERE date = ?
     ORDER BY edit_count DESC
     LIMIT 10
@@ -320,35 +329,54 @@ def generate_report():
 
     print("=" * 55)
 
+
 # ---------------- MAIN PROCESSING LOOP ----------------
 
 try:
 
     while True:
 
-        for message in consumer:
+        records = consumer.poll(timeout_ms=1000)
 
-            edit = message.value
-            is_new_event = record_event(edit)
+        for partition, messages in records.items():
 
-            # Commit this message only after its database transaction succeeds.
-            partition = TopicPartition(message.topic, message.partition)
-            offset = OffsetAndMetadata(message.offset + 1, "")
-            consumer.commit({partition: offset})
+            for message in messages:
 
-            if is_new_event:
-                window_event_count += 1
-                print(
-                    f"Received | Page: {edit.get('title', 'Unknown')} | "
-                    f"Type: {edit.get('type', 'unknown')}"
-                )
-            else:
-                print(
-                    f"Duplicate or missing-ID event ignored | "
-                    f"Page: {edit.get('title', 'Unknown')}"
+                edit = message.value
+                is_new_event = record_event(edit)
+
+                # Commit after successful database processing.
+                topic_partition = TopicPartition(
+                    message.topic,
+                    message.partition
                 )
 
-        # Evaluate completed, non-overlapping windows.
+                offset = OffsetAndMetadata(
+                    message.offset + 1,
+                    ""
+                )
+
+                consumer.commit({
+                    topic_partition: offset
+                })
+
+                if is_new_event:
+
+                    window_event_count += 1
+
+                    print(
+                        f"Received | Page: {edit.get('title', 'Unknown')} | "
+                        f"Type: {edit.get('type', 'unknown')}"
+                    )
+
+                else:
+
+                    print(
+                        f"Duplicate or missing-ID event ignored | "
+                        f"Page: {edit.get('title', 'Unknown')}"
+                    )
+
+        # Evaluate completed windows.
         now = time.time()
 
         while now - window_start >= WINDOW_SECONDS:
@@ -358,6 +386,7 @@ try:
             window_event_count = 0
             window_start += WINDOW_SECONDS
 
+        # Generate business report every 30 seconds.
         if now - last_report >= REPORT_INTERVAL:
 
             generate_report()
@@ -373,4 +402,3 @@ finally:
     connection.close()
 
     print("Analytics stopped.")
-
